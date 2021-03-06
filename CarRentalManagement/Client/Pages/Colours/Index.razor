@@ -1,0 +1,71 @@
+﻿@page "/colours/"
+@inject HttpClient _client
+@inject IJSRuntime js
+@attribute [Authorize]
+    <HeadingComponent Text="Colours" />
+    <br />
+    <a href="/colours/create" class="btn btn-secondary">
+        <span class="oi oi-plus"></span>
+        Create New Colour
+    </a>
+    <br />
+    <br />
+    @if (Colours == null)
+    {
+        <div class="alert alert-info">Loading Colours...</div>
+    }
+    else
+    {
+        <table class="table ">
+            <thead>
+                <tr>
+                    <th>Name</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var colour in Colours)
+                {
+                    <tr>
+                        <td>@colour.Name</td>
+
+                        <td>
+                            <a href="/colours/view/@colour.Id" class="btn btn-primary">
+                                <span class="oi oi-book"></span>
+                            </a>
+                            <a href="/colours/edit/@colour.Id" class="btn btn-warning">
+                                <span class="oi oi-pencil"></span>
+                            </a>
+                            <button class="btn btn-danger" @onclick="@(()=>Delete(colour.Id))">
+                                <span class="oi oi-delete"></span>
+                            </button>
+
+                        </td>
+                    </tr>
+
+                }
+            </tbody>
+        </table>
+    }
+
+
+    @code {
+        private List<Colour> Colours;
+
+        protected async override Task OnInitializedAsync()
+        {
+            Colours = await _client.GetFromJsonAsync<List<Colour>>($"{Endpoints.ColoursEndpoint}");
+        }
+
+        async Task Delete(int colourId)
+        {
+            var colour = Colours.First(q => q.Id == colourId);
+            var confirm = await js.InvokeAsync<bool>("confirm", $"Do you want to delete {colour.Name}?");
+            if (confirm)
+            {
+                await _client.DeleteAsync($"{Endpoints.ColoursEndpoint}/{colourId}");
+                await OnInitializedAsync();
+            }
+
+        }
+    }

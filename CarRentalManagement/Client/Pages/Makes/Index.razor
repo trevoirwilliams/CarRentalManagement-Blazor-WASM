@@ -1,0 +1,70 @@
+﻿@page "/makes/"
+@inject HttpClient _client
+@inject IJSRuntime js
+@attribute [Authorize]
+    <HeadingComponent Text="Makes" />
+    <br />
+    <a href="/makes/create" class="btn btn-secondary">
+        <span class="oi oi-plus"></span>
+        Create New Make
+    </a>
+    <br />
+    <br />
+    @if (Makes == null)
+    {
+        <div class="alert alert-info">Loading Makes...</div>
+    }
+    else
+    {
+        <table class="table ">
+            <thead>
+                <tr>
+                    <th>Name</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var make in Makes)
+                {
+                    <tr>
+                        <td>@make.Name</td>
+                        <td>
+                            <a href="/makes/view/@make.Id" class="btn btn-primary">
+                                <span class="oi oi-book"></span>
+                            </a>
+                            <a href="/makes/edit/@make.Id" class="btn btn-warning">
+                                <span class="oi oi-pencil"></span>
+                            </a>
+                            <button class="btn btn-danger" @onclick="@(()=>Delete(make.Id))">
+                                <span class="oi oi-delete"></span>
+                            </button>
+
+                        </td>
+                    </tr>
+
+                }
+            </tbody>
+        </table>
+    }
+
+
+    @code {
+        private List<Make> Makes;
+
+        protected async override Task OnInitializedAsync()
+        {
+            Makes = await _client.GetFromJsonAsync<List<Make>>($"{Endpoints.MakesEndpoint}");
+        }
+
+        async Task Delete(int makeId)
+        {
+            var make = Makes.First(q => q.Id == makeId);
+            var confirm = await js.InvokeAsync<bool>("confirm", $"Do you want to delete {make.Name}?");
+            if (confirm)
+            {
+                await _client.DeleteAsync($"{Endpoints.MakesEndpoint}/{makeId}");
+                await OnInitializedAsync();
+            }
+
+        }
+    }

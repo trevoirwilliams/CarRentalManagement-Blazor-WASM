@@ -11,7 +11,7 @@ using CarRentalManagement.Server.IRepository;
 
 namespace CarRentalManagement.Server.Controllers
 {
-    [Route("[controller]")]
+    [Route("api/[controller]")]
     [ApiController]
     public class BookingsController : ControllerBase
     {
@@ -26,7 +26,8 @@ namespace CarRentalManagement.Server.Controllers
         [HttpGet]
         public async Task<IActionResult> GetBookings()
         {
-            var Bookings = await _unitOfWork.Bookings.GetAll();
+            var includes = new List<string> { "Vehicle", "Customer" };
+            var Bookings = await _unitOfWork.Bookings.GetAll(includes: includes);
             return Ok(Bookings);
         }
 
@@ -34,8 +35,8 @@ namespace CarRentalManagement.Server.Controllers
         [HttpGet("{id}")]
         public async Task<IActionResult> GetBooking(int id)
         {
-            var Booking = await _unitOfWork.Bookings.Get(q => q.Id == id);
-
+            var includes = new List<string> { "Vehicle", "Customer" };
+            var Booking = await _unitOfWork.Bookings.Get(q => q.Id == id, includes);
             if (Booking == null)
             {
                 return NotFound();

@@ -1,0 +1,66 @@
+﻿<EditForm Model="@customer" OnValidSubmit="OnValidSubmit">
+    <DataAnnotationsValidator />
+    <ValidationSummary />
+    <fieldset disabled="@Disabled">
+        <div class="form-group">
+            <label>First Name:</label>
+            <div>
+                <InputText @bind-Value="@customer.FirstName" class="form-control" />
+                <ValidationMessage For="@(() => customer.FirstName)" />
+            </div>
+        </div>
+        <div class="form-group">
+            <label>Last Name:</label>
+            <div>
+                <InputText @bind-Value="@customer.LastName" class="form-control" />
+                <ValidationMessage For="@(() => customer.LastName)" />
+            </div>
+        </div>
+        <div class="form-group">
+            <label>Tax Identification Number:</label>
+            <div>
+                <InputText @bind-Value="@customer.TaxId" class="form-control" />
+                <ValidationMessage For="@(() => customer.TaxId)" />
+            </div>
+        </div>
+        <div class="form-group">
+            <label>Email Address:</label>
+            <div>
+                <InputText @bind-Value="@customer.EmailAddress" class="form-control" />
+                <ValidationMessage For="@(() => customer.EmailAddress)" />
+            </div>
+        </div>
+        <div class="form-group">
+            <label>Contact Number:</label>
+            <div>
+                <InputText @bind-Value="@customer.ContactNumber" class="form-control" />
+                <ValidationMessage For="@(() => customer.ContactNumber)" />
+            </div>
+        </div>
+
+        <div class="form-group">
+            <label>Address:</label>
+            <div>
+                <InputTextArea @bind-Value="@customer.Address" class="form-control" />
+                <ValidationMessage For="@(() => customer.Address)" />
+            </div>
+        </div>
+    </fieldset>
+    
+    @if (!Disabled)
+    {
+        <button type="submit" class="btn btn-success btn-block">
+            @ButtonText
+        </button>
+    }
+
+    <BackToList Target="customers" />
+</EditForm>
+
+
+@code {
+    [Parameter] public bool Disabled { get; set; } = false;
+    [Parameter] public Customer customer { get; set; }
+    [Parameter] public string ButtonText { get; set; } = "Save";
+    [Parameter] public EventCallback OnValidSubmit { get; set; }
+}
