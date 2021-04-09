@@ -1,7 +1,5 @@
 ﻿@page "/customers/create/"
 
-@inject HttpClient _client
-@inject NavigationManager _navManager
 
 <h3 class="card-title">Create New Customer</h3>
 <hr />
@@ -11,18 +9,6 @@
 
 
 @code {
-    Customer customer = new Customer();
-
-
-    protected async override Task OnInitializedAsync()
-    {
-
-    }
-
-    private async Task CreateCustomer()
-    {
-        await _client.PostAsJsonAsync(Endpoints.CustomersEndpoint, customer);
-        _navManager.NavigateTo("/customers/");
-    }
+    
 
 }

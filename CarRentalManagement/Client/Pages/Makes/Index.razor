@@ -1,6 +1,4 @@
 ﻿@page "/makes/"
-@inject HttpClient _client
-@inject IJSRuntime js
 @attribute [Authorize]
     <HeadingComponent Text="Makes" />
     <br />
@@ -49,22 +47,5 @@
 
 
     @code {
-        private List<Make> Makes;
-
-        protected async override Task OnInitializedAsync()
-        {
-            Makes = await _client.GetFromJsonAsync<List<Make>>($"{Endpoints.MakesEndpoint}");
-        }
-
-        async Task Delete(int makeId)
-        {
-            var make = Makes.First(q => q.Id == makeId);
-            var confirm = await js.InvokeAsync<bool>("confirm", $"Do you want to delete {make.Name}?");
-            if (confirm)
-            {
-                await _client.DeleteAsync($"{Endpoints.MakesEndpoint}/{makeId}");
-                await OnInitializedAsync();
-            }
-
-        }
+        
     }

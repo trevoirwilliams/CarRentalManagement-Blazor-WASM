@@ -1,24 +1,9 @@
 ﻿@page "/makes/edit/{id:int}"
 
-@inject HttpClient _client
-@inject NavigationManager _navManager
-
 <h3>Edit</h3>
 
 <FormComponent ButtonText="Update" OnValidSubmit="@EditMake" make="make" />
 
 @code {
-    [Parameter] public int id { get; set; }
-    Make make = new Make();
-
-    protected async override Task OnParametersSetAsync()
-    {
-        make = await _client.GetFromJsonAsync<Make>($"{Endpoints.MakesEndpoint}/{id}");
-    }
-
-    async Task EditMake()
-    {
-        await _client.PutAsJsonAsync($"{Endpoints.MakesEndpoint}/{id}", make);
-        _navManager.NavigateTo("/makes/");
-    }
+    
 }

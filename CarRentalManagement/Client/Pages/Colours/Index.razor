@@ -1,6 +1,4 @@
 ﻿@page "/colours/"
-@inject HttpClient _client
-@inject IJSRuntime js
 @attribute [Authorize]
     <HeadingComponent Text="Colours" />
     <br />
@@ -50,22 +48,5 @@
 
 
     @code {
-        private List<Colour> Colours;
-
-        protected async override Task OnInitializedAsync()
-        {
-            Colours = await _client.GetFromJsonAsync<List<Colour>>($"{Endpoints.ColoursEndpoint}");
-        }
-
-        async Task Delete(int colourId)
-        {
-            var colour = Colours.First(q => q.Id == colourId);
-            var confirm = await js.InvokeAsync<bool>("confirm", $"Do you want to delete {colour.Name}?");
-            if (confirm)
-            {
-                await _client.DeleteAsync($"{Endpoints.ColoursEndpoint}/{colourId}");
-                await OnInitializedAsync();
-            }
-
-        }
+        
     }
