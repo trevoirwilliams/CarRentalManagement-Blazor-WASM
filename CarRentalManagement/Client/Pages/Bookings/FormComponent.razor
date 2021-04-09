@@ -1,56 +1,66 @@
 ﻿@inject HttpClient _client
 
-    <EditForm Model="@booking" OnValidSubmit="OnValidSubmit">
-        <DataAnnotationsValidator />
-        <ValidationSummary />
+<EditForm Model="@booking" OnValidSubmit="OnValidSubmit">
+    <DataAnnotationsValidator />
+    <ValidationSummary />
 
-        <div class="form-group">
-            <label>Vehicle: </label>
-            <div>
-                <select @bind="booking.VehicleId" class="form-control">
-                    <option value="">-- Select Vehicle --</option>
-                    @if (Vehicles != null)
+    <div class="form-group">
+        <label>Vehicle: </label>
+        <div>
+            <select @bind="booking.VehicleId" class="form-control">
+                <option value="">-- Select Vehicle --</option>
+                @if (Vehicles != null)
+                {
+                    foreach (var vehicle in Vehicles)
                     {
-                        foreach (var vehicle in Vehicles)
-                        {
-                            <option value="@vehicle.Id">@vehicle.Make.Name @vehicle.Model.Name | @vehicle.LicensePlateNumber</option>
-                        }
+                        <option value="@vehicle.Id">@vehicle.Make.Name @vehicle.Model.Name | @vehicle.LicensePlateNumber</option>
                     }
-                </select>
-                <ValidationMessage For="@(() => booking.VehicleId)" />
-            </div>
+                }
+            </select>
+            <ValidationMessage For="@(() => booking.VehicleId)" />
         </div>
-        <div class="form-group">
-            <label>Customer: </label>
-            <div>
-                <InputSelect @bind-Value="booking.CustomerId" class="form-control">
-                    <option value="">-- Select Customer --</option>
-                    @if (Customers != null)
+    </div>
+    <div class="form-group">
+        <label>Customer: </label>
+        <div>
+            <InputSelect @bind-Value="booking.CustomerId" class="form-control">
+                <option value="">-- Select Customer --</option>
+                @if (Customers != null)
+                {
+                    foreach (var customer in Customers)
                     {
-                        foreach (var customer in Customers)
-                        {
-                            <option value="@customer.Id">@customer.TaxId | @customer.EmailAddress</option>
-                        }
+                        <option value="@customer.Id">@customer.TaxId | @customer.EmailAddress</option>
                     }
-                </InputSelect>
-                <ValidationMessage For="@(() => booking.CustomerId)" />
-            </div>
+                }
+            </InputSelect>
+            <ValidationMessage For="@(() => booking.CustomerId)" />
         </div>
+    </div>
 
+    <div class="form-group">
+        <label>Date Out:</label>
+        <div>
+            <InputDate @bind-Value="@booking.DateOut" class="form-control" />
+            <ValidationMessage For="@(() => booking.DateOut)" />
+        </div>
+    </div>
+
+    @if (booking.Id > 0)
+    {
         <div class="form-group">
-            <label>Date Out:</label>
+            <label>Date In:</label>
             <div>
-                <InputDate @bind-Value="@booking.DateOut" class="form-control" />
-                <ValidationMessage For="@(() => booking.DateOut)" />
+                <InputDate @bind-Value="@booking.DateIn" class="form-control" />
+                <ValidationMessage For="@(() => booking.DateIn)" />
             </div>
         </div>
+    }
 
-
-        <button type="submit" class="btn btn-success btn-block">
-            @ButtonText
-        </button>
-        <BackToList Target="bookings" />
-    </EditForm>
+    <button type="submit" class="btn btn-success btn-block">
+        @ButtonText
+    </button>
+    <BackToList Target="bookings" />
+</EditForm>
 
 
 @code {

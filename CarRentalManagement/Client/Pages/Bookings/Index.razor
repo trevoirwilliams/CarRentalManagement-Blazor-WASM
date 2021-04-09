@@ -33,7 +33,8 @@ else
                     <td>@booking.Customer.TaxId</td>
                     <td>@booking.DateCreated.Date.ToString("dd MMMM yyyy")</td>
                     <td>
-                        @((booking.DateIn - booking.DateOut).TotalDays.ToString())
+                        @(booking.DateIn != null ? (booking.DateIn.Value - booking.DateOut).TotalDays.ToString()
+                            : "To Be Determined")
                     </td>
                     <td>
                         <a href="/bookings/view/@booking.Id" class="btn btn-primary">
