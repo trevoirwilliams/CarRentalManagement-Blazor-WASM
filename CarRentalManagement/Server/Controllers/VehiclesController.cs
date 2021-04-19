@@ -8,6 +8,7 @@ using Microsoft.EntityFrameworkCore;
 using CarRentalManagement.Server.Data;
 using CarRentalManagement.Shared.Domain;
 using CarRentalManagement.Server.IRepository;
+using Microsoft.AspNetCore.Hosting;
 
 namespace CarRentalManagement.Server.Controllers
 {
@@ -16,10 +17,14 @@ namespace CarRentalManagement.Server.Controllers
     public class VehiclesController : ControllerBase
     {
         private readonly IUnitOfWork _unitOfWork;
-
-        public VehiclesController(IUnitOfWork unitOfWork)
+        private readonly IWebHostEnvironment _webHostEnvironment;
+        private readonly IHttpContextAccessor _httpContextAccessor;
+        public VehiclesController(IUnitOfWork unitOfWork, IWebHostEnvironment webHostEnvironment,
+            IHttpContextAccessor httpContextAccessor)
         {
             _unitOfWork = unitOfWork;
+            this._webHostEnvironment = webHostEnvironment;
+            this._httpContextAccessor = httpContextAccessor;
         }
 
         // GET: /Vehicles
@@ -82,6 +87,13 @@ namespace CarRentalManagement.Server.Controllers
         [HttpPost]
         public async Task<ActionResult<Vehicle>> PostVehicle(Vehicle Vehicle)
         {
+            var url = _httpContextAccessor.HttpContext.Request.Host.Value;
+            var path = $"{_webHostEnvironment.WebRootPath}\\uploads\\{Vehicle.ImageName}";
+            var fileStream = System.IO.File.Create(path);
+            fileStream.Write(Vehicle.Image, 0, Vehicle.Image.Length);
+            fileStream.Close();
+            Vehicle.ImageName = $"https://{url}/uploads/{Vehicle.ImageName}";
+
             await _unitOfWork.Vehicles.Insert(Vehicle);
             await _unitOfWork.Save(HttpContext);
 
