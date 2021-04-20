@@ -5,16 +5,16 @@ using Microsoft.JSInterop;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Net.Http;
+using CarRentalManagement.Client.Contracts;
 using System.Net.Http.Json;
 using System.Threading.Tasks;
 using CarRentalManagement.Client.Services;
 
 namespace CarRentalManagement.Client.Pages.Models
 {
-    public partial class View : IDisposable
+    public partial class View 
     {
-        [Inject] HttpClient _client { get; set; }
+       [Inject] IHttpRepository<Model> _client { get; set; }
         [Inject] IJSRuntime js { get; set; }
         [Inject] HttpInterceptorService _interceptor { get; set; }
 
@@ -23,11 +23,8 @@ namespace CarRentalManagement.Client.Pages.Models
 
         protected async override Task OnParametersSetAsync()
         {
-            model = await _client.GetFromJsonAsync<Model>($"{Endpoints.ModelsEndpoint}/{id}");
+            model = await _client.Get(Endpoints.ModelsEndpoint, id);
         }
-        public void Dispose()
-        {
-            _interceptor.DisposeEvent();
-        }
+       
     }
 }

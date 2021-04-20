@@ -9,31 +9,28 @@ using System.Net.Http;
 using System.Net.Http.Json;
 using System.Threading.Tasks;
 using CarRentalManagement.Client.Services;
+using CarRentalManagement.Client.Contracts;
 
 namespace CarRentalManagement.Client.Pages.Customers
 {
-    public partial class Edit : IDisposable
+    public partial class Edit
     {
-        [Inject] HttpClient _client { get; set; }
+        [Inject] IHttpRepository<Customer> _client { get; set; }
         [Inject] NavigationManager _navManager { get; set; }
-        [Inject] HttpInterceptorService _interceptor { get; set; }
 
         [Parameter] public int id { get; set; }
         Customer customer = new Customer();
 
         protected async override Task OnParametersSetAsync()
         {
-            customer = await _client.GetFromJsonAsync<Customer>($"{Endpoints.CustomersEndpoint}/{id}");
+            customer = await _client.Get(Endpoints.CustomersEndpoint, id);
         }
 
         async Task EditCustomer()
         {
-            await _client.PutAsJsonAsync($"{Endpoints.CustomersEndpoint}/{id}", customer);
+            await _client.Update(Endpoints.CustomersEndpoint,customer,id);
             _navManager.NavigateTo("/customers/");
         }
-        public void Dispose()
-        {
-            _interceptor.DisposeEvent();
-        }
+        
     }
 }

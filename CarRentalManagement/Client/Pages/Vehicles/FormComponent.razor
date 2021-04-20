@@ -2,136 +2,114 @@
 <EditForm Model="@vehicle" OnValidSubmit="OnValidSubmit">
     <DataAnnotationsValidator />
     <ValidationSummary />
+    <fieldset disabled="@Disabled">
+        @if (Disabled)
+        {
+            <div class="form-group">
+                <label>Image (Optional):</label>
+                <div>
+                   <img src="@vehicle.ImageName" class="img-thumbnail" style="width:150px; height:150px" />
+                </div>
+            </div>
+        }
+        else
+        {
+            <div class="form-group">
+                <label>Image (Optional):</label>
+                <div>
+                    <InputFile OnChange="HandleFileSelection" />
+                    <p class="text-danger">@UploadFileWarning</p>
+                </div>
+            </div>
+        }
 
-    <div class="form-group">
-        <label>Image (Optional):</label>
-        <div>
-            <InputFile OnChange="HandleFileSelection" />
-            <p class="text-danger">@UploadFileWarning</p>
-        </div>
-    </div>
-    <div class="form-group">
-        <label>Make: </label>
-        <div>
-            <select @bind="vehicle.MakeId" class="form-control">
-                <option value="">-- Select Make --</option>
-                @if (Makes != null)
-                {
-                    foreach (var make in Makes)
+        <div class="form-group">
+            <label>Make: </label>
+            <div>
+                <select @bind="vehicle.MakeId" class="form-control">
+                    <option value="">-- Select Make --</option>
+                    @if (Makes != null)
                     {
-                        <option value="@make.Id">@make.Name</option>
+                        foreach (var make in Makes)
+                        {
+                            <option value="@make.Id">@make.Name</option>
+                        }
                     }
-                }
-            </select>
-            <ValidationMessage For="@(() => vehicle.MakeId)" />
+                </select>
+                <ValidationMessage For="@(() => vehicle.MakeId)" />
+            </div>
         </div>
-    </div>
-    <div class="form-group">
-        <label>Model: </label>
-        <div>
-            <InputSelect @bind-Value="vehicle.ModelId" class="form-control">
-                <option value="">-- Select Model --</option>
-                @if (Models != null)
-                {
-                    foreach (var model in Models)
+        <div class="form-group">
+            <label>Model: </label>
+            <div>
+                <InputSelect @bind-Value="vehicle.ModelId" class="form-control">
+                    <option value="">-- Select Model --</option>
+                    @if (Models != null)
                     {
-                        <option value="@model.Id">@model.Name</option>
+                        foreach (var model in Models)
+                        {
+                            <option value="@model.Id">@model.Name</option>
+                        }
                     }
-                }
-            </InputSelect>
-            <ValidationMessage For="@(() => vehicle.ModelId)" />
+                </InputSelect>
+                <ValidationMessage For="@(() => vehicle.ModelId)" />
+            </div>
         </div>
-    </div>
-    <div class="form-group">
-        <label>Colour: </label>
-        <div>
-            <select @bind="vehicle.ColourId" class="form-control">
-                <option value="">-- Select Colour --</option>
-                @if (Colours != null)
-                {
-                    foreach (var colour in Colours)
+        <div class="form-group">
+            <label>Colour: </label>
+            <div>
+                <select @bind="vehicle.ColourId" class="form-control">
+                    <option value="">-- Select Colour --</option>
+                    @if (Colours != null)
                     {
-                        <option value="@colour.Id">@colour.Name</option>
+                        foreach (var colour in Colours)
+                        {
+                            <option value="@colour.Id">@colour.Name</option>
+                        }
                     }
-                }
-            </select>
-            <ValidationMessage For="@(() => vehicle.ColourId)" />
+                </select>
+                <ValidationMessage For="@(() => vehicle.ColourId)" />
+            </div>
         </div>
-    </div>
-    <div class="form-group">
-        <label>Year:</label>
-        <div>
-            <InputNumber @bind-Value="@vehicle.Year" class="form-control" />
-            <ValidationMessage For="@(() => vehicle.Year)" />
+        <div class="form-group">
+            <label>Year:</label>
+            <div>
+                <InputNumber @bind-Value="@vehicle.Year" class="form-control" />
+                <ValidationMessage For="@(() => vehicle.Year)" />
+            </div>
         </div>
-    </div>
-    <div class="form-group">
-        <label>License Plate Number:</label>
-        <div>
-            <InputText @bind-Value="@vehicle.LicensePlateNumber" class="form-control" />
-            <ValidationMessage For="@(() => vehicle.LicensePlateNumber)" />
+        <div class="form-group">
+            <label>License Plate Number:</label>
+            <div>
+                <InputText @bind-Value="@vehicle.LicensePlateNumber" class="form-control" />
+                <ValidationMessage For="@(() => vehicle.LicensePlateNumber)" />
+            </div>
         </div>
-    </div>
-    <div class="form-group">
-        <label>Vehicle Identification Number:</label>
-        <div>
-            <InputText @bind-Value="@vehicle.Vin" class="form-control" />
-            <ValidationMessage For="@(() => vehicle.Vin)" />
+        <div class="form-group">
+            <label>Vehicle Identification Number:</label>
+            <div>
+                <InputText @bind-Value="@vehicle.Vin" class="form-control" />
+                <ValidationMessage For="@(() => vehicle.Vin)" />
+            </div>
         </div>
-    </div>
-    <div class="form-group">
-        <label>Daily Rate:</label>
-        <div>
-            <InputNumber @bind-Value="@vehicle.RentalRate" class="form-control" />
-            <ValidationMessage For="@(() => vehicle.RentalRate)" />
+        <div class="form-group">
+            <label>Daily Rate:</label>
+            <div>
+                <InputNumber @bind-Value="@vehicle.RentalRate" class="form-control" />
+                <ValidationMessage For="@(() => vehicle.RentalRate)" />
+            </div>
         </div>
-    </div>
-
-    <button type="submit" class="btn btn-success btn-block">
-        @ButtonText
-    </button>
+    </fieldset>
+    @if (!Disabled)
+    {
+        <button type="submit" class="btn btn-success btn-block">
+            @ButtonText
+        </button>
+    }
     <BackToList Target="vehicles" />
 </EditForm>
 
 
 @code {
-    private IList<Make> Makes;
-    private IList<Model> Models;
-    private IList<Colour> Colours;
-    string UploadFileWarning;
-
-    protected async override Task OnInitializedAsync()
-    {
-        Models = await _client.GetFromJsonAsync<List<Model>>(Endpoints.ModelsEndpoint);
-        Colours = await _client.GetFromJsonAsync<List<Colour>>(Endpoints.ColoursEndpoint);
-        Makes = await _client.GetFromJsonAsync<List<Make>>($"{Endpoints.MakesEndpoint}");
-    }
-
-    private async void HandleFileSelection(InputFileChangeEventArgs e)
-    {
-        var file = e.File;
-        if(file != null)
-        {
-            var ext = System.IO.Path.GetExtension(file.Name);
-            if (ext.ToLower().Contains("jpg")
-                || ext.ToLower().Contains("png")
-                || ext.ToLower().Contains("jpeg"))
-            {
-                var picId = Guid.NewGuid().ToString().Replace("-", "");
-                vehicle.ImageName = $"{picId}{ext}";
-                vehicle.Image = new byte[file.Size];
-                await file.OpenReadStream().ReadAsync(vehicle.Image);
-                UploadFileWarning = string.Empty;
-            }
-            else
-            {
-                UploadFileWarning = "Please select a valid image file (*.jpg | *.png)";
-            }
-        }
-    }
-
-    [Parameter] public bool Disabled { get; set; } = false;
-    [Parameter] public Vehicle vehicle { get; set; }
-    [Parameter] public string ButtonText { get; set; } = "Save";
-    [Parameter] public EventCallback OnValidSubmit { get; set; }
+    
 }

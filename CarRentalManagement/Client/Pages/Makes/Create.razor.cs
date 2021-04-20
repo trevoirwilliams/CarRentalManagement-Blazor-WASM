@@ -9,25 +9,22 @@ using System.Net.Http;
 using System.Net.Http.Json;
 using System.Threading.Tasks;
 using CarRentalManagement.Client.Services;
+using CarRentalManagement.Client.Contracts;
 
 namespace CarRentalManagement.Client.Pages.Makes
 {
-    public partial class Create : IDisposable
+    public partial class Create 
     {
-        [Inject] HttpClient _client { get; set; }
+        [Inject] IHttpRepository<Make> _client { get; set; }
         [Inject] NavigationManager _navManager { get; set; }
-        [Inject] HttpInterceptorService _interceptor { get; set; }
 
         Make make = new Make();
 
         private async Task CreateMake()
         {
-            await _client.PostAsJsonAsync(Endpoints.MakesEndpoint, make);
+            await _client.Create(Endpoints.MakesEndpoint, make);
             _navManager.NavigateTo("/makes/");
         }
-        public void Dispose()
-        {
-            _interceptor.DisposeEvent();
-        }
+        
     }
 }

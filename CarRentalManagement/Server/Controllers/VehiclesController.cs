@@ -61,6 +61,11 @@ namespace CarRentalManagement.Server.Controllers
                 return BadRequest();
             }
 
+            if (Vehicle.Image != null)
+            {
+                Vehicle.ImageName = CreateFile(Vehicle.Image, Vehicle.ImageName);
+            }
+
             _unitOfWork.Vehicles.Update(Vehicle);
 
             try
@@ -87,13 +92,11 @@ namespace CarRentalManagement.Server.Controllers
         [HttpPost]
         public async Task<ActionResult<Vehicle>> PostVehicle(Vehicle Vehicle)
         {
-            var url = _httpContextAccessor.HttpContext.Request.Host.Value;
-            var path = $"{_webHostEnvironment.WebRootPath}\\uploads\\{Vehicle.ImageName}";
-            var fileStream = System.IO.File.Create(path);
-            fileStream.Write(Vehicle.Image, 0, Vehicle.Image.Length);
-            fileStream.Close();
-            Vehicle.ImageName = $"https://{url}/uploads/{Vehicle.ImageName}";
-
+            if(Vehicle.Image != null)
+            {
+                Vehicle.ImageName = CreateFile(Vehicle.Image, Vehicle.ImageName);
+            }
+            
             await _unitOfWork.Vehicles.Insert(Vehicle);
             await _unitOfWork.Save(HttpContext);
 
@@ -113,6 +116,16 @@ namespace CarRentalManagement.Server.Controllers
             await _unitOfWork.Save(HttpContext);
 
             return NoContent();
+        }
+
+        private string CreateFile(byte[] image, string name)
+        {
+            var url = _httpContextAccessor.HttpContext.Request.Host.Value;
+            var path = $"{_webHostEnvironment.WebRootPath}\\uploads\\{name}";
+            var fileStream = System.IO.File.Create(path);
+            fileStream.Write(image, 0, image.Length);
+            fileStream.Close();
+            return $"https://{url}/uploads/{name}";
         }
 
         private async Task<bool> VehicleExists(int id)

@@ -5,23 +5,23 @@ using Microsoft.JSInterop;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Net.Http;
+using CarRentalManagement.Client.Contracts;
 using System.Net.Http.Json;
 using System.Threading.Tasks;
 using CarRentalManagement.Client.Services;
 
 namespace CarRentalManagement.Client.Pages.Vehicles
 {
-    public partial class Index : IDisposable
+    public partial class Index 
     {
-        [Inject] HttpClient _client { get; set; }
+       [Inject] IHttpRepository<Vehicle> _client { get; set; }
         [Inject] IJSRuntime js { get; set; }
         [Inject] HttpInterceptorService _interceptor { get; set; }
 
         private List<Vehicle> Vehicles;
         protected async override Task OnInitializedAsync()
         {
-            Vehicles = await _client.GetFromJsonAsync<List<Vehicle>>($"{Endpoints.VehiclesEndpoint}");
+            Vehicles = await _client.GetAll($"{Endpoints.VehiclesEndpoint}");
         }
 
         async Task Delete(int vehicleId)
@@ -30,13 +30,10 @@ namespace CarRentalManagement.Client.Pages.Vehicles
             var confirm = await js.InvokeAsync<bool>("confirm", $"Do you want to delete {vehicle.Vin}?");
             if (confirm)
             {
-                await _client.DeleteAsync($"{Endpoints.VehiclesEndpoint}/{vehicleId}");
+                await _client.Delete(Endpoints.VehiclesEndpoint, vehicleId);
                 await OnInitializedAsync();
             }
         }
-        public void Dispose()
-        {
-            _interceptor.DisposeEvent();
-        }
+       
     }
 }
