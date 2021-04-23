@@ -3,7 +3,7 @@
 
 An Educational ASP.NET Core Hosted Blazor WebAssembly application built using .NET Core 5.0 
 
-By doing this course, you would have:
+By doing this course, you will:
 <ul>
     <li>
         Build A Strong Foundation in .NET 5 Programming With Blazor:
