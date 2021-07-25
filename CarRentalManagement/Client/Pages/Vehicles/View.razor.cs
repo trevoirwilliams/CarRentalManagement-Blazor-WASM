@@ -23,7 +23,7 @@ namespace CarRentalManagement.Client.Pages.Vehicles
 
         protected async override Task OnParametersSetAsync()
         {
-            vehicle = await _client.Get(Endpoints.VehiclesEndpoint,id);
+            vehicle = await _client.GetDetails(Endpoints.VehiclesEndpoint,id);
         }
       
     }
