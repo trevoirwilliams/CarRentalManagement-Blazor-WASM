@@ -7,6 +7,7 @@ using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.HttpsPolicy;
 using Microsoft.AspNetCore.ResponseCompression;
+using Microsoft.Azure.Cosmos;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -48,6 +49,9 @@ namespace CarRentalManagement.Server
             services.AddControllersWithViews()
                 .AddNewtonsoftJson(op=> op.SerializerSettings.ReferenceLoopHandling =
                     Newtonsoft.Json.ReferenceLoopHandling.Ignore);
+
+            var documentClient = new CosmosClient(Configuration.GetConnectionString("CosmosConnection"));
+            services.AddSingleton(documentClient);
 
             services.AddRazorPages();
         }

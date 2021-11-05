@@ -1,0 +1,97 @@
+﻿@page "/branches/"
+@inject IHttpRepository<Branch> _client
+
+<h3>Branches</h3>
+
+@if (isSuccess)
+{
+    <div class="alert alert-success">Branch Created!</div>
+}
+
+    <EditForm Model="branch" OnValidSubmit="HandleCreate">
+        <div class="form-group">
+            <label>Name:</label>
+            <div>
+                <InputText @bind-Value="@branch.Name" class="form-control" />
+            </div>
+        </div>
+        <div class="form-group">
+            <label>State:</label>
+            <div>
+                <InputText @bind-Value="@branch.State" class="form-control" />
+            </div>
+        </div>
+        <div class="form-group">
+            <label>Country:</label>
+            <div>
+                <InputText @bind-Value="@branch.Country" class="form-control" />
+            </div>
+        </div>
+        
+        <button class="btn btn-primary" type="submit">
+            <span class="oi oi-pencil"></span>
+            Create Branch
+        </button>
+</EditForm>
+<br/>
+<br/>
+<EditForm Model="branchSearch" OnValidSubmit="Search">
+     <InputText @bind-Value="@branchSearch.Country" class="form-control"/> 
+     <br/>
+     <button class="btn btn-primary" type="submit" >
+        <span class="oi oi-pencil"></span>
+        Search by Country
+    </button>
+</EditForm>
+<br/>
+@if(BranchLocations == null){
+    <div class="alert alert-info">Loading Branches...</div>
+}else{
+            <table class="table ">
+            <thead>
+                <tr>
+                    <th>Name</th>
+                    <th>State</th>
+                    <th>Country</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var Branch in BranchLocations)
+                {
+                    <tr>
+                        <td>@Branch.Name</td>
+                        <td>@Branch.State</td>
+                        <td>@Branch.Country</td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+
+}
+
+
+
+@code {
+    private Branch branch = new Branch();
+    private Branch branchSearch = new Branch();
+    private List<Branch> BranchLocations;
+    private bool isSuccess;
+
+    protected async override Task OnInitializedAsync()
+    {
+        BranchLocations = await _client.GetAll(Endpoints.BranchesEndpoint);
+    }
+
+    protected async Task Search()
+    {
+        BranchLocations = await _client.Search(Endpoints.BranchesSearchEndpoint, branchSearch.Country);
+    }
+
+    private async Task HandleCreate()
+    {
+        await _client.Create(Endpoints.BranchesEndpoint, branch);
+        isSuccess = true;
+        await OnInitializedAsync();
+    }
+
+}
