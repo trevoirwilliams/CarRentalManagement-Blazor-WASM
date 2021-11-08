@@ -1,14 +1,15 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
+﻿using Azure.Storage.Blobs;
+using Azure.Storage.Blobs.Models;
+using CarRentalManagement.Server.IRepository;
+using CarRentalManagement.Shared.Domain;
+using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
-using CarRentalManagement.Server.Data;
-using CarRentalManagement.Shared.Domain;
-using CarRentalManagement.Server.IRepository;
-using Microsoft.AspNetCore.Hosting;
+using Microsoft.Extensions.Configuration;
+using System;
+using System.IO;
+using System.Threading.Tasks;
 
 namespace CarRentalManagement.Server.Controllers
 {
@@ -19,12 +20,15 @@ namespace CarRentalManagement.Server.Controllers
         private readonly IUnitOfWork _unitOfWork;
         private readonly IWebHostEnvironment _webHostEnvironment;
         private readonly IHttpContextAccessor _httpContextAccessor;
+        private readonly IConfiguration configuration;
+
         public VehiclesController(IUnitOfWork unitOfWork, IWebHostEnvironment webHostEnvironment,
-            IHttpContextAccessor httpContextAccessor)
+            IHttpContextAccessor httpContextAccessor, IConfiguration configuration)
         {
             _unitOfWork = unitOfWork;
             this._webHostEnvironment = webHostEnvironment;
             this._httpContextAccessor = httpContextAccessor;
+            this.configuration = configuration;
         }
 
         // GET: /Vehicles
@@ -77,7 +81,8 @@ namespace CarRentalManagement.Server.Controllers
 
             if (Vehicle.Image != null)
             {
-                Vehicle.ImageName = CreateFile(Vehicle.Image, Vehicle.ImageName);
+                //Vehicle.ImageName = CreateFile(Vehicle.Image, Vehicle.ImageName);
+                Vehicle.ImageName = await UploadFileAsync(Vehicle.Image, Vehicle.ImageName);
             }
 
             _unitOfWork.Vehicles.Update(Vehicle);
@@ -106,11 +111,12 @@ namespace CarRentalManagement.Server.Controllers
         [HttpPost]
         public async Task<ActionResult<Vehicle>> PostVehicle(Vehicle Vehicle)
         {
-            if(Vehicle.Image != null)
+            if (Vehicle.Image != null)
             {
-                Vehicle.ImageName = CreateFile(Vehicle.Image, Vehicle.ImageName);
+                ////Vehicle.ImageName = CreateFile(Vehicle.Image, Vehicle.ImageName);
+                Vehicle.ImageName = await UploadFileAsync(Vehicle.Image, Vehicle.ImageName);
             }
-            
+
             await _unitOfWork.Vehicles.Insert(Vehicle);
             await _unitOfWork.Save(HttpContext);
 
@@ -132,6 +138,17 @@ namespace CarRentalManagement.Server.Controllers
             return NoContent();
         }
 
+        private async Task<string> UploadFileAsync(byte[] image, string imageName)
+        {
+            var blobContainerClient = new BlobContainerClient(configuration["BlobConnection"], "carimages");
+
+            var blob = blobContainerClient.GetBlobClient(imageName);
+
+            using var ms = new MemoryStream(image, false);
+            var blobContentInfo = await blob.UploadAsync(ms, new BlobHttpHeaders { CacheControl = "public" });
+
+            return blob.Uri.AbsoluteUri;
+        }
         private string CreateFile(byte[] image, string name)
         {
             var url = _httpContextAccessor.HttpContext.Request.Host.Value;
