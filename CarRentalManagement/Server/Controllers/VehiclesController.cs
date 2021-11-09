@@ -1,5 +1,6 @@
 ﻿using Azure.Storage.Blobs;
 using Azure.Storage.Blobs.Models;
+using Azure.Storage.Sas;
 using CarRentalManagement.Server.IRepository;
 using CarRentalManagement.Shared.Domain;
 using Microsoft.AspNetCore.Hosting;
@@ -9,6 +10,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using System;
 using System.IO;
+using System.Security.Policy;
 using System.Threading.Tasks;
 
 namespace CarRentalManagement.Server.Controllers
@@ -37,6 +39,12 @@ namespace CarRentalManagement.Server.Controllers
         {
             var Vehicles = await _unitOfWork.Vehicles.GetAll(includes: q => q.Include(x => x.Make).Include(x => x.Model)
                 .Include(x => x.Colour));
+
+            foreach (var vehicle in Vehicles)
+            {
+                vehicle.ImageName = BuildSasUrl(vehicle.ImageName);
+            }
+
             return Ok(Vehicles);
         }
 
@@ -45,6 +53,7 @@ namespace CarRentalManagement.Server.Controllers
         public async Task<IActionResult> GetVehicle(int id)
         {
             var Vehicle = await _unitOfWork.Vehicles.Get(q => q.Id == id);
+            Vehicle.ImageName = BuildSasUrl(Vehicle.ImageName);
 
             if (Vehicle == null)
             {
@@ -53,6 +62,7 @@ namespace CarRentalManagement.Server.Controllers
 
             return Ok(Vehicle);
         }
+
 
         // GET: /Vehicles/5/details
         [HttpGet("{id}/details")]
@@ -61,6 +71,8 @@ namespace CarRentalManagement.Server.Controllers
             var Vehicle = await _unitOfWork.Vehicles.Get(q => q.Id == id,
                 includes: q => q.Include(x => x.Make).Include(x => x.Model).Include(x => x.Colour));
 
+            Vehicle.ImageName = BuildSasUrl(Vehicle.ImageName);
+
             if (Vehicle == null)
             {
                 return NotFound();
@@ -68,6 +80,7 @@ namespace CarRentalManagement.Server.Controllers
 
             return Ok(Vehicle);
         }
+
 
         // PUT: api/Vehicles/5
         // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
@@ -157,6 +170,27 @@ namespace CarRentalManagement.Server.Controllers
             fileStream.Write(image, 0, image.Length);
             fileStream.Close();
             return $"https://{url}/uploads/{name}";
+        }
+
+        private string BuildSasUrl(string imageName)
+        {
+            var blobContainerClient = new BlobContainerClient(configuration["BlobConnection"], "carimages");
+
+            var blobName = Path.GetFileName(imageName);
+
+            var blob = blobContainerClient.GetBlobClient(blobName);
+
+            BlobSasBuilder blobSasBuilder = new()
+            {
+                BlobContainerName = blob.BlobContainerName,
+                BlobName = blob.Name,
+                ExpiresOn = DateTime.UtcNow.AddMinutes(2),
+                Protocol = SasProtocol.Https,
+                Resource = "b"
+            };
+            blobSasBuilder.SetPermissions(BlobAccountSasPermissions.Read);
+
+            return blob.GenerateSasUri(blobSasBuilder).ToString();
         }
 
         private async Task<bool> VehicleExists(int id)
